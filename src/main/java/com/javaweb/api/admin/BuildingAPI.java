@@ -15,10 +15,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.validation.Valid;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -32,7 +30,7 @@ public class BuildingAPI {
     BuildingService buildingService;
 
     @PostMapping
-    private ResponseEntity<?> createOrUpdateBuilding(@RequestBody BuildingDTO buildingDTO,
+    private ResponseEntity<?> createOrUpdateBuilding(@RequestBody @Valid BuildingDTO buildingDTO,
                                                      BindingResult bindingResult) {
         try {
             if (bindingResult.hasErrors()) {
@@ -44,9 +42,14 @@ public class BuildingAPI {
                 return ResponseEntity.badRequest().body(reponseDTO);
             }
             buildingService.createOrUpdateBuilding(buildingDTO);
-            return ResponseEntity.ok("");
+            ReponseDTO successDTO = new ReponseDTO();
+            successDTO.setMessage("Success");
+            return ResponseEntity.ok(successDTO);
         }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            ReponseDTO errorDTO = new ReponseDTO();
+            errorDTO.setMessage("Internal Server Error");
+            errorDTO.setDetail(Collections.singletonList(e.getMessage()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
         }
     }
 

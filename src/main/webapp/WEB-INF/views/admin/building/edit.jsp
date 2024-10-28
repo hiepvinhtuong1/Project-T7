@@ -141,13 +141,13 @@
                             <form:input class="form-control" path="deposit"/>
                         </div>
                     </div>
-                      <div class="form-group">
+                    <div class="form-group">
                         <label class="col-xs-3">Thanh toán</label>
                         <div class="col-xs-9">
                             <form:input class="form-control" path="payment"/>
                         </div>
                     </div>
-                      <div class="form-group">
+                    <div class="form-group">
                         <label class="col-xs-3">Thời hạn thuê</label>
                         <div class="col-xs-9">
                             <form:input class="form-control" path="rentTime"/>
@@ -282,15 +282,29 @@
             dataType: "json",
             contentType: "application/json",
             success: function (result) {
-                console.log(result.message);
-                alert(result);
+                if (result.message === "Success") {
+                    alert("Building added/updated successfully!");
+                }
             },
             error: function (result) {
-                console.log(result.message);
-                alert(result.message);
+                if (result.responseJSON) {
+                    // Nếu có responseJSON thì lấy message và chi tiết lỗi từ đó
+                    const response = result.responseJSON;
+                    if (response.message === "Field error") {
+                        const errorDetails = response.detail ? response.detail.join("\n") : "Unknown error";
+                        alert("Errors:\n" + errorDetails);
+                    } else {
+                        alert("An error occurred: " + response.message);
+                    }
+                } else {
+                    // Nếu không có responseJSON, hiển thị responseText hoặc status
+                    const errorMessage = result.responseText || `Status code: ${result.status}`;
+                    alert("An unexpected error occurred:\n" + errorMessage);
+                }
             }
-        })
+        });
     }
+
 </script>
 </body>
 </html>

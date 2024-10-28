@@ -19,7 +19,7 @@ public interface BuildingService {
 
     //public void updateBuilding(BuildingDTO buildingDTO);
 
-    public void createOrUpdateBuilding(BuildingDTO buildingDTO);
+    public BuildingEntity createOrUpdateBuilding(BuildingDTO buildingDTO);
 
     public void deleteBuildingById(Long id);
 }

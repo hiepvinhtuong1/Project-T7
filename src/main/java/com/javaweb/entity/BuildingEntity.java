@@ -105,6 +105,9 @@ public class BuildingEntity {
     @OneToMany(mappedBy = "building", fetch = FetchType.LAZY)
     private List<RentAreaEntity> rentAreaEntities = new ArrayList<RentAreaEntity>();
 
-    @ManyToMany(mappedBy = "buildings", fetch = FetchType.LAZY)
-    private List<UserEntity> users = new ArrayList<>();
+//    @ManyToMany(mappedBy = "buildings", fetch = FetchType.LAZY)
+//    private List<UserEntity> users = new ArrayList<>();
+
+    @OneToMany(mappedBy = "buildings", fetch = FetchType.LAZY)
+    private List<AssignmentBuildingEntity> assignmentBuildingEntities = new ArrayList<AssignmentBuildingEntity>();
 }

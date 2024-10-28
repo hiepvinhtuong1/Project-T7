@@ -1,12 +1,14 @@
 package com.javaweb.service.impl;
 
 import com.javaweb.converter.BuildingConverter;
+import com.javaweb.entity.AssignmentBuildingEntity;
 import com.javaweb.entity.BuildingEntity;
 import com.javaweb.entity.RentAreaEntity;
 import com.javaweb.entity.UserEntity;
 import com.javaweb.model.dto.BuildingDTO;
 import com.javaweb.model.request.BuildingSearchRequest;
 import com.javaweb.model.response.BuildingSearchResponse;
+import com.javaweb.repository.AssignmentBuildingRepository;
 import com.javaweb.repository.BuildingRepository;
 import com.javaweb.repository.RentAreaRepository;
 import com.javaweb.repository.UserRepository;
@@ -34,6 +36,9 @@ public class BuildingServiceImpl implements BuildingService {
 
     @Autowired
     private BuildingConverter buildingConverter;
+
+    @Autowired
+    private AssignmentBuildingRepository assignmentBuildingRepository;
 
     @Override
     public List<BuildingSearchResponse> findAll(BuildingSearchRequest buildingSearchRequest) {
@@ -64,39 +69,37 @@ public class BuildingServiceImpl implements BuildingService {
         if (buildingEntity == null) {
 
         } else {
-            for (UserEntity userEntity : buildingEntity.getUsers()) {
-                //xoa lien ket voi building trong UserEntity
-                userEntity.getBuildings().remove(buildingEntity);
+            for (AssignmentBuildingEntity assignmentBuildingEntity : buildingEntity.getAssignmentBuildingEntities()) {
+                //xoa assignmentBuildingEntity
+                UserEntity userEntity = assignmentBuildingEntity.getStaffs();
+                assignmentBuildingRepository.delete(assignmentBuildingEntity);
+                userEntity.getAssignmentBuildingEntities().remove(assignmentBuildingEntity);
                 userRepository.save(userEntity);
             }
 
             // Xoa lien ket voi tat ca UserEntity trong buiildings
-            buildingEntity.getUsers().clear();
+            buildingEntity.getAssignmentBuildingEntities().clear();
             buildingRepository.save(buildingEntity);
         }
 
         for (Long staffId : staffIds) {
             UserEntity userEntity = userRepository.findById(staffId).orElse(null);
             if (userEntity != null) {
-
-                // them user vao danh sach quan li cua building
-                if (!buildingEntity.getUsers().contains(userEntity)) {
-                    buildingEntity.getUsers().add(userEntity);
-                }
-
-                // them building vao danh sach cua user neu chua co
-                if (!userEntity.getBuildings().contains(buildingEntity)) {
-                    userEntity.getBuildings().add(buildingEntity);
-                    userRepository.save(userEntity);
-                }
+                AssignmentBuildingEntity assignmentBuildingEntity = new AssignmentBuildingEntity();
+                assignmentBuildingEntity.setBuildings(buildingEntity);
+                assignmentBuildingEntity.setStaffs(userEntity);
+                assignmentBuildingRepository.save(assignmentBuildingEntity);
+                buildingEntity.getAssignmentBuildingEntities().add(assignmentBuildingEntity);
+                userEntity.getAssignmentBuildingEntities().add(assignmentBuildingEntity);
             }
             buildingRepository.save(buildingEntity);
+            userRepository.save(userEntity);
         }
     }
 
     @Override
     @Transactional
-    public void createOrUpdateBuilding(BuildingDTO buildingDTO) {
+    public BuildingEntity createOrUpdateBuilding(BuildingDTO buildingDTO) {
         BuildingEntity buildingEntity = new BuildingEntity();
         if (buildingDTO.getId() != null) {
             buildingEntity = buildingRepository.findById(buildingDTO.getId()).orElse(null);
@@ -104,6 +107,7 @@ public class BuildingServiceImpl implements BuildingService {
                 rentAreaRepository.deleteAllByBuilding(buildingEntity);
             }
         }
+        buildingEntity = buildingConverter.convertToEntity(buildingDTO);
         String[] rentArea = buildingDTO.getRentArea().split(",");
         for (int i = 0; i < rentArea.length; i++) {
             RentAreaEntity rentAreaEntity = new RentAreaEntity();
@@ -112,8 +116,7 @@ public class BuildingServiceImpl implements BuildingService {
             rentAreaRepository.save(rentAreaEntity);
             buildingEntity.getRentAreaEntities().add(rentAreaEntity);
         }
-        buildingEntity = buildingConverter.convertToEntity(buildingDTO);
-        buildingRepository.save(buildingEntity);
+        return buildingRepository.save(buildingEntity);
     }
 
     @Override
@@ -123,13 +126,12 @@ public class BuildingServiceImpl implements BuildingService {
         if (buildingEntity != null) {
 
             // xoóa liên ket building trong userentity
-            for (UserEntity userEntity : buildingEntity.getUsers()) {
-                userEntity.getBuildings().remove(buildingEntity);
+            for (AssignmentBuildingEntity assignmentBuildingEntity : buildingEntity.getAssignmentBuildingEntities()) {
+                UserEntity userEntity = assignmentBuildingEntity.getStaffs();
+                assignmentBuildingRepository.delete(assignmentBuildingEntity);
+                userEntity.getAssignmentBuildingEntities().remove(assignmentBuildingEntity);
                 userRepository.save(userEntity);
             }
-
-            // xoa lien ket voi tat ca userentity trong buildingentity
-            buildingEntity.getUsers().clear();
 
             // xoa lien ket building trong renareaentity
             rentAreaRepository.deleteAllByBuilding(buildingEntity);

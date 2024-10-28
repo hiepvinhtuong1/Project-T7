@@ -46,7 +46,6 @@ public class BuildingConverter {
         BuildingEntity buildingEntity = modelMapper.map(dto, BuildingEntity.class);
         List<String> typeCode = dto.getTypeCode();
         String types = typeCode.stream().collect(Collectors.joining(","));
-
         buildingEntity.setType(types);
         return buildingEntity;
     }

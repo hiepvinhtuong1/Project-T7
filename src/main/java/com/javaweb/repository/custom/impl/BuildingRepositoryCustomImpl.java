@@ -30,6 +30,7 @@ public class BuildingRepositoryCustomImpl implements BuildingRepositoryCustom {
         handleNormalWhereClauses(buildingSearchRequest, where);
         handleSpeciallWhereClauses(buildingSearchRequest, where);
         sql.append(join).append(where);
+        sql.append(" GROUP BY b.id");
         System.out.println(sql);
         Query query = entityManager.createNativeQuery(sql.toString(), BuildingEntity.class);
         return query.getResultList();
@@ -40,10 +41,10 @@ public class BuildingRepositoryCustomImpl implements BuildingRepositoryCustom {
         if (staffId != null) {
             join.append(" JOIN assignmentbuilding ab ON ab.buildingid = b.id");
         }
-        List<String> typeCode = buildingSearchBuilder.getTypeCode();
-        if (typeCode != null && typeCode.size() != 0) {
-            join.append(" JOIN buildingrenttype brt ON brt.buildingid = b.id JOIN renttype rt ON brt.renttypeid = rt.id");
-        }
+//        List<String> typeCode = buildingSearchBuilder.getTypeCode();
+//        if (typeCode != null && typeCode.size() != 0) {
+//            join.append(" JOIN buildingrenttype brt ON brt.buildingid = b.id JOIN renttype rt ON brt.renttypeid = rt.id");
+//        }
         Long rentAreaFrom = buildingSearchBuilder.getAreaFrom();
         Long rentAreaTo = buildingSearchBuilder.getAreaTo();
         if ((rentAreaFrom != null) || (rentAreaTo != null)) {
@@ -60,13 +61,12 @@ public class BuildingRepositoryCustomImpl implements BuildingRepositoryCustom {
                 field.setAccessible(true);
 
                 if (!field.getName().equals("staffId") && !field.getName().equals("typeCode")
-                        && !field.getName().startsWith("rentPrice") && !field.getName().startsWith("rentArea")) {
+                        && !field.getName().startsWith("rentPrice") && !field.getName().startsWith("area")) {
                     Object value = field.get(buildingSearchBuilder);
                     if (field.getType().equals(String.class) && ObjectUtils.check(value)) {
                         where.append(" AND b." + field.getName() + " LIKE '%" + value + "%'");
                     } else if (value != null && ObjectUtils.check(value)) {
                         where.append(" AND b." + field.getName() + " = " + value);
-
                     }
                 }
             }
@@ -107,36 +107,9 @@ public class BuildingRepositoryCustomImpl implements BuildingRepositoryCustom {
 
         List<String> typeCode = buildingSearchBuilder.getTypeCode();
         if (typeCode != null && typeCode.size() != 0) {
-            String tC = typeCode.stream().map(i -> "'" + i + "'").collect(Collectors.joining(","));
-            where.append(" AND rt.code IN (" + tC + ")");
-        }
-    }
-
-    @Override
-    @Transactional
-    public void updateAssignmentBuildingById(Long buildingId, List<Long> staffIds) {
-//        // Xóa các bản ghi hiện có với buildingId
-//        Query deleteQuery = entityManager.createNativeQuery("DELETE FROM assignmentbuilding WHERE buildingid = "+buildingId);
-//        deleteQuery.executeUpdate();
-//
-//        // Thêm các bản ghi mới với các staffId trong danh sách staffIds
-//        for (Long staffId : staffIds) {
-//            Query insertQuery = entityManager.createNativeQuery(
-//                    "INSERT INTO assignmentbuilding (staffid, buildingid) VALUES ( "+staffId+" , " + buildingId+" ) ");
-//            insertQuery.executeUpdate();
-//        }
-        // Xóa các bản ghi hiện có với buildingId
-        Query deleteQuery = entityManager.createNativeQuery("DELETE FROM assignmentbuilding WHERE buildingid = :buildingId");
-        deleteQuery.setParameter("buildingId", buildingId);
-        deleteQuery.executeUpdate();
-
-        // Thêm các bản ghi mới với các staffId trong danh sách staffIds
-        for (Long staffId : staffIds) {
-            Query insertQuery = entityManager.createNativeQuery(
-                    "INSERT INTO assignmentbuilding (staffid, buildingid) VALUES (:staffId, :buildingId)");
-            insertQuery.setParameter("staffId", staffId);
-            insertQuery.setParameter("buildingId", buildingId);
-            insertQuery.executeUpdate();
+            for (String type : typeCode) {
+                where.append(" AND b.type " + " LIKE '%" + type + "%'");
+            }
         }
     }
 

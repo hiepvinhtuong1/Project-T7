@@ -23,17 +23,17 @@ public class BuildingDTO extends AbstractDTO {
     @NotBlank(message = "District can not be blank")
     private String district;
 
-    @NotBlank(message = "numberOfBasement can not be blank")
+    @NotNull(message = "numberOfBasement can not be null")
     @Digits(integer = 10, fraction = 0, message = "numberOfBasement phải là số nguyên và không vượt quá 10 chữ số")
     @Min(value = 1, message = "numberOfBasement phải lớn hơn hoặc bằng 1")
     private Long numberOfBasement;
 
-    @NotBlank(message = "floorArea can not be blank")
+    @NotNull(message = "floorArea can not be blank")
     @Digits(integer = 10, fraction = 0, message = "floorArea phải là số nguyên và không vượt quá 10 chữ số")
     @Min(value = 1, message = "floorArea phải lớn hơn hoặc bằng 1")
     private Long floorArea;
 
-    @NotBlank(message = "level can not be blank")
+    @NotNull(message = "level can not be blank")
     @Digits(integer = 10, fraction = 0, message = "level phải là số nguyên và không vượt quá 10 chữ số")
     @Min(value = 1, message = "level phải lớn hơn hoặc bằng 1")
     private Long level;
@@ -41,22 +41,22 @@ public class BuildingDTO extends AbstractDTO {
     @NotNull(message = "TypeCode can not be null")
     private List<String> typeCode;
 
-    @NotBlank(message = "overtimeFee can not be blank")
+    @NotNull(message = "overtimeFee can not be blank")
     @Digits(integer = 10, fraction = 0, message = "overtimeFee phải là số nguyên và không vượt quá 10 chữ số")
     @Min(value = 1, message = "overtimeFee phải lớn hơn hoặc bằng 1")
     private Long overtimeFee;
 
-    @NotBlank(message = "electricityFee can not be blank")
+    @NotNull(message = "electricityFee can not be blank")
     @Digits(integer = 10, fraction = 0, message = "electricityFee phải là số nguyên và không vượt quá 10 chữ số")
     @Min(value = 1, message = "electricityFee phải lớn hơn hoặc bằng 1")
     private Long electricityFee;
 
-    @NotBlank(message = "deposit can not be blank")
+    @NotNull(message = "deposit can not be blank")
     @Digits(integer = 10, fraction = 0, message = "deposit phải là số nguyên và không vượt quá 10 chữ số")
     @Min(value = 1, message = "deposit phải lớn hơn hoặc bằng 1")
     private Long deposit;
 
-    @NotBlank(message = "payment can not be blank")
+    @NotNull(message = "payment can not be blank")
     @Digits(integer = 10, fraction = 0, message = "payment phải là số nguyên và không vượt quá 10 chữ số")
     @Min(value = 1, message = "payment phải lớn hơn hoặc bằng 1")
     private Long payment;
@@ -70,7 +70,7 @@ public class BuildingDTO extends AbstractDTO {
     @NotBlank(message = "rentPriceDescription can not be blank")
     private String rentPriceDescription;
 
-    @NotBlank(message = "carFee can not be blank")
+    @NotNull(message = "carFee can not be blank")
     @Digits(integer = 10, fraction = 0, message = "carFee phải là số nguyên và không vượt quá 10 chữ số")
     @Min(value = 1, message = "carFee phải lớn hơn hoặc bằng 1")
     private Long carFee;
@@ -93,12 +93,12 @@ public class BuildingDTO extends AbstractDTO {
     @NotBlank(message = "note can not be blank")
     private String managerPhone;
 
-    @NotBlank(message = "rentPrice can not be blank")
+    @NotNull(message = "rentPrice can not be blank")
     @Digits(integer = 10, fraction = 0, message = "rentPrice phải là số nguyên và không vượt quá 10 chữ số")
     @Min(value = 1, message = "rentPrice phải lớn hơn hoặc bằng 1")
     private Long rentPrice;
 
-    @NotBlank(message = "serviceFee can not be blank")
+    @NotNull(message = "serviceFee can not be blank")
     @Digits(integer = 10, fraction = 0, message = "serviceFee phải là số nguyên và không vượt quá 10 chữ số")
     @Min(value = 1, message = "serviceFee phải lớn hơn hoặc bằng 1")
     private Long serviceFee;

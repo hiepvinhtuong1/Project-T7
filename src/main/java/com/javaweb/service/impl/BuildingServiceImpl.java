@@ -67,7 +67,7 @@ public class BuildingServiceImpl implements BuildingService {
     public void updateAssignmentBuildingById(Long buildingId, List<Long> staffIds) {
         BuildingEntity buildingEntity = buildingRepository.findById(buildingId).orElse(null);
         if (buildingEntity != null) {
-            assignmentBuildingRepository.deleteAssignmentBuildingEntitiesByBuildings(buildingEntity.getAssignmentBuildingEntities());
+            assignmentBuildingRepository.deleteAssignmentBuildingEntitiesByBuildings(buildingEntity);
             buildingEntity.getAssignmentBuildingEntities().clear();
             List<UserEntity> userEntities = userRepository.findAllById(staffIds);
             for (UserEntity userEntity : userEntities) {
@@ -75,11 +75,7 @@ public class BuildingServiceImpl implements BuildingService {
                 assignmentBuildingEntity.setBuildings(buildingEntity);
                 assignmentBuildingEntity.setStaffs(userEntity);
                 assignmentBuildingRepository.save(assignmentBuildingEntity);
-                buildingEntity.getAssignmentBuildingEntities().add(assignmentBuildingEntity);
-                userEntity.getAssignmentBuildingEntities().add(assignmentBuildingEntity);
             }
-            buildingRepository.save(buildingEntity);
-            userRepository.saveAll(userEntities);
         }
     }
 
@@ -112,12 +108,7 @@ public class BuildingServiceImpl implements BuildingService {
         if (buildingEntity != null) {
 
             // xoóa liên ket building trong userentity
-            for (AssignmentBuildingEntity assignmentBuildingEntity : buildingEntity.getAssignmentBuildingEntities()) {
-                UserEntity userEntity = assignmentBuildingEntity.getStaffs();
-                assignmentBuildingRepository.delete(assignmentBuildingEntity);
-                userEntity.getAssignmentBuildingEntities().remove(assignmentBuildingEntity);
-                userRepository.save(userEntity);
-            }
+            assignmentBuildingRepository.deleteAssignmentBuildingEntitiesByBuildings(buildingEntity);
 
             // xoa lien ket building trong renareaentity
             rentAreaRepository.deleteAllByBuilding(buildingEntity);

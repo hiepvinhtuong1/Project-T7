@@ -494,6 +494,7 @@
             alert("Chưa chọn tòa nhà cần xóa");
         } else {
             btnDeleteBuilding(buildingIds)
+            location.reload();
         }
     })
 

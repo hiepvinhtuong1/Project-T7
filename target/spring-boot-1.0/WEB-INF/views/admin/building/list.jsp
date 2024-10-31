@@ -330,9 +330,12 @@
                                         </button>
                                     </a>
 
-                                    <button class="btn btn-xs btn-danger" title="Xóa tòa nhà" onclick="deleteBuilding(${item.id})">
-                                        <i class="ace-icon fa fa-trash-o bigger-120"></i>
-                                    </button>
+                                    <a href="/admin/building-list">
+                                        <button class="btn btn-xs btn-danger" title="Xóa tòa nhà" onclick="deleteBuilding(${item.id})">
+                                            <i class="ace-icon fa fa-trash-o bigger-120"></i>
+                                        </button>
+
+                                    </a>
 
                                     <button class="btn btn-xs btn-warning">
                                         <i class="ace-icon fa fa-flag bigger-120"></i>
@@ -442,7 +445,9 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal" id="btnAssignmentBuilding">Giao
                 </button>
-                <button type="button" class="btn btn-primary">Đóng</button>
+                <a href="/admin/building-list">
+                    <button type="button" class="btn btn-primary">Đóng</button>
+                </a>
             </div>
         </div>
     </div>
@@ -533,7 +538,7 @@
             url: "/api/buildings/staffs", // api/buildings/1,2,3
             type: "PUT",
             data: JSON.stringify(json),
-            contentType:'application/json',
+            contentType: 'application/json',
             dataType: "text",
             success: function (result) {
                 console.log("success");

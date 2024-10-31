@@ -160,6 +160,18 @@
                         </div>
                     </div>
                     <div class="form-group">
+                        <label class="col-xs-3">Người quản lí </label>
+                        <div class="col-xs-9">
+                            <form:input class="form-control" path="managerName"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-xs-3">Sdt Người quản lí </label>
+                        <div class="col-xs-9">
+                            <form:input class="form-control" path="managerPhone"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label class="col-xs-3">Loại tòa nhà</label>
                         <div class="col-xs-9">
                             <form:checkboxes items="${renttype}" path="typeCode"/>

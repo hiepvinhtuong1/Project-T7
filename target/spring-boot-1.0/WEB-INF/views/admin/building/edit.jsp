@@ -190,13 +190,13 @@
                                 </button>
                             </c:if>
                             <c:if test="${ empty buildingEdit.id}">
-                                <button
-                                        type="button"
-                                        class="btn btn-primary"
-                                        id="btnAddOrUpdateBuilding"
-                                >
-                                    Thêm tòa nhà
-                                </button>
+                                  <button
+                                            type="button"
+                                            class="btn btn-primary"
+                                            id="btnAddOrUpdateBuilding"
+                                    >
+                                        Thêm tòa nhà
+                                    </button>
                             </c:if>
                             <a href="/admin/building-list">
                                 <button type="button" class="btn btn-warning">
@@ -283,6 +283,7 @@
             alert("Type code not empty!");
         } else {
             btnAddOrUpdateBuilding(jSon);
+            location.replace("/admin/building-list");
         }
     });
 

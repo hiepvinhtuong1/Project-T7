@@ -75,11 +75,7 @@ public class BuildingServiceImpl implements BuildingService {
                 assignmentBuildingEntity.setBuildings(buildingEntity);
                 assignmentBuildingEntity.setStaffs(userEntity);
                 assignmentBuildingRepository.save(assignmentBuildingEntity);
-                buildingEntity.getAssignmentBuildingEntities().add(assignmentBuildingEntity);
-                userEntity.getAssignmentBuildingEntities().add(assignmentBuildingEntity);
             }
-            buildingRepository.save(buildingEntity);
-            userRepository.saveAll(userEntities);
         }
     }
 

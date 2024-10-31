@@ -66,26 +66,12 @@ public class BuildingServiceImpl implements BuildingService {
     @Transactional
     public void updateAssignmentBuildingById(Long buildingId, List<Long> staffIds) {
         BuildingEntity buildingEntity = buildingRepository.findById(buildingId).orElse(null);
-        if (buildingEntity == null) {
-
-        } else {
-            for (AssignmentBuildingEntity assignmentBuildingEntity : buildingEntity.getAssignmentBuildingEntities()) {
-                //xoa assignmentBuildingEntity
-                UserEntity userEntity = assignmentBuildingEntity.getStaffs();
-                assignmentBuildingRepository.delete(assignmentBuildingEntity);
-                userEntity.getAssignmentBuildingEntities().remove(assignmentBuildingEntity);
-                userRepository.save(userEntity);
-            }
-
-            // Xoa lien ket voi tat ca UserEntity trong buiildings
+        if (buildingEntity != null) {
+            assignmentBuildingRepository.deleteAssignmentBuildingEntitiesByBuildings(buildingEntity.getAssignmentBuildingEntities());
             buildingEntity.getAssignmentBuildingEntities().clear();
-            buildingRepository.save(buildingEntity);
-        }
-
-        for (Long staffId : staffIds) {
-            UserEntity userEntity = userRepository.findById(staffId).orElse(null);
-            if (userEntity != null) {
-                AssignmentBuildingEntity assignmentBuildingEntity = new AssignmentBuildingEntity();
+            List<UserEntity> userEntities = userRepository.findAllById(staffIds);
+            for (UserEntity userEntity : userEntities) {
+                AssignmentBuildingEntity assignmentBuildingEntity = new    AssignmentBuildingEntity();
                 assignmentBuildingEntity.setBuildings(buildingEntity);
                 assignmentBuildingEntity.setStaffs(userEntity);
                 assignmentBuildingRepository.save(assignmentBuildingEntity);
@@ -93,7 +79,7 @@ public class BuildingServiceImpl implements BuildingService {
                 userEntity.getAssignmentBuildingEntities().add(assignmentBuildingEntity);
             }
             buildingRepository.save(buildingEntity);
-            userRepository.save(userEntity);
+            userRepository.saveAll(userEntities);
         }
     }
 

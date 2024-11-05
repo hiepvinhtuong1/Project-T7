@@ -10,6 +10,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.transaction.Transactional;
+import java.awt.print.Pageable;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,7 +22,7 @@ public class BuildingRepositoryCustomImpl implements BuildingRepositoryCustom {
     private EntityManager entityManager;
 
     @Override
-    public List<BuildingEntity> findAll(BuildingSearchRequest buildingSearchRequest) {
+    public List<BuildingEntity> findAll(BuildingSearchRequest buildingSearchRequest, Pageable pageable) {
         StringBuilder sql = new StringBuilder("SELECT b.* FROM building b");
         StringBuilder join = new StringBuilder(" ");
         StringBuilder where = new StringBuilder(" WHERE 1 = 1 ");

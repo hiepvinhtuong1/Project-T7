@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 
 
 import javax.transaction.Transactional;
+import java.awt.print.Pageable;
+import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -42,25 +44,9 @@ public class BuildingServiceImpl implements BuildingService {
 
     @Override
     public List<BuildingSearchResponse> findAll(BuildingSearchRequest buildingSearchRequest) {
-
-        List<BuildingEntity> buildingEntities = buildingRepository.findAll(buildingSearchRequest);
-
-        List<BuildingSearchResponse> buildingReponseDTOs = new ArrayList<>();
-
-        for (BuildingEntity it : buildingEntities) {
-            BuildingSearchResponse buildingSearchResponse = buildingConverter.convertToResponse(it);
-            buildingReponseDTOs.add(buildingSearchResponse);
-        }
-
-        return buildingReponseDTOs;
+        return null;
     }
 
-    @Override
-    public BuildingDTO findById(Long id) {
-        BuildingEntity buildingEntity = buildingRepository.findById(id).orElse(null);
-        BuildingDTO buildingDTO = buildingConverter.convertToDTO(buildingEntity);
-        return buildingDTO;
-    }
 
     @Override
     @Transactional
@@ -71,7 +57,7 @@ public class BuildingServiceImpl implements BuildingService {
             buildingEntity.getAssignmentBuildingEntities().clear();
             List<UserEntity> userEntities = userRepository.findAllById(staffIds);
             for (UserEntity userEntity : userEntities) {
-                AssignmentBuildingEntity assignmentBuildingEntity = new    AssignmentBuildingEntity();
+                AssignmentBuildingEntity assignmentBuildingEntity = new AssignmentBuildingEntity();
                 assignmentBuildingEntity.setBuildings(buildingEntity);
                 assignmentBuildingEntity.setStaffs(userEntity);
                 assignmentBuildingRepository.save(assignmentBuildingEntity);
@@ -116,5 +102,31 @@ public class BuildingServiceImpl implements BuildingService {
             buildingRepository.delete(buildingEntity);
 
         }
+    }
+
+    @Override
+    public int countTotalItems() {
+        return buildingRepository.countTotalItem();
+    }
+
+    @Override
+    public BuildingDTO findById(Long id) {
+        BuildingEntity buildingEntity = buildingRepository.findById(id).orElse(null);
+        BuildingDTO buildingDTO = buildingConverter.convertToDTO(buildingEntity);
+        return buildingDTO;
+    }
+
+    @Override
+    public List<BuildingSearchResponse> findAll(BuildingSearchRequest buildingSearchRequest, Pageable pageable) {
+        List<BuildingEntity> buildingEntities = buildingRepository.findAll(buildingSearchRequest, pageable);
+
+        List<BuildingSearchResponse> buildingReponseDTOs = new ArrayList<>();
+
+        for (BuildingEntity it : buildingEntities) {
+            BuildingSearchResponse buildingSearchResponse = buildingConverter.convertToResponse(it);
+            buildingReponseDTOs.add(buildingSearchResponse);
+        }
+
+        return buildingReponseDTOs;
     }
 }

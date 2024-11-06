@@ -17,6 +17,5 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> , UserRe
     long countByUserNameContainingIgnoreCaseOrFullNameContainingIgnoreCaseAndStatusNot(String userName, String fullName, int status);
     long countByStatusNot(int status);
     UserEntity findOneByUserName(String userName);
-    List<UserEntity> findByIdIn(List<Long> id);
     List<UserEntity> findByRoles_CodeAndBuildings_Id(String roleCode, Long buildingId);
 }

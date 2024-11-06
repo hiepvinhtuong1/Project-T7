@@ -1,5 +1,6 @@
 package com.javaweb.api.admin;
 
+import com.javaweb.entity.BuildingEntity;
 import com.javaweb.entity.UserEntity;
 import com.javaweb.model.dto.AssignmentBuildingDTO;
 import com.javaweb.model.dto.BuildingDTO;
@@ -8,16 +9,18 @@ import com.javaweb.model.response.ReponseDTO;
 import com.javaweb.model.response.StaffResponseDTO;
 import com.javaweb.service.BuildingService;
 import com.javaweb.service.impl.UserService;
+import com.javaweb.utils.UploadFileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
-
 import javax.validation.Valid;
+import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
+
 
 @RestController
 @RequestMapping("/api/buildings")

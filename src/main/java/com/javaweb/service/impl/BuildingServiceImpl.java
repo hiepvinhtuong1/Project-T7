@@ -13,14 +13,17 @@ import com.javaweb.repository.BuildingRepository;
 import com.javaweb.repository.RentAreaRepository;
 import com.javaweb.repository.UserRepository;
 import com.javaweb.service.BuildingService;
+import com.javaweb.utils.UploadFileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.apache.tomcat.util.codec.binary.Base64;
 
 
 import javax.transaction.Transactional;
+import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 @Service
 public class BuildingServiceImpl implements BuildingService {
@@ -38,12 +41,16 @@ public class BuildingServiceImpl implements BuildingService {
     private BuildingConverter buildingConverter;
 
     @Autowired
-    private AssignmentBuildingRepository assignmentBuildingRepository;
+    private UploadFileUtils uploadFileUtils;
 
     @Override
     public List<BuildingSearchResponse> findAll(BuildingSearchRequest buildingSearchRequest) {
+        return null;
+    }
 
-        List<BuildingEntity> buildingEntities = buildingRepository.findAll(buildingSearchRequest);
+    @Override
+    public List<BuildingSearchResponse> findAll(BuildingSearchRequest buildingSearchRequest, org.springframework.data.domain.Pageable pageable) {
+        List<BuildingEntity> buildingEntities = buildingRepository.findAll(buildingSearchRequest, pageable);
 
         List<BuildingSearchResponse> buildingReponseDTOs = new ArrayList<>();
 
@@ -55,27 +62,34 @@ public class BuildingServiceImpl implements BuildingService {
         return buildingReponseDTOs;
     }
 
-    @Override
-    public BuildingDTO findById(Long id) {
-        BuildingEntity buildingEntity = buildingRepository.findById(id).orElse(null);
-        BuildingDTO buildingDTO = buildingConverter.convertToDTO(buildingEntity);
-        return buildingDTO;
-    }
 
     @Override
     @Transactional
     public void updateAssignmentBuildingById(Long buildingId, List<Long> staffIds) {
         BuildingEntity buildingEntity = buildingRepository.findById(buildingId).orElse(null);
         if (buildingEntity != null) {
-            assignmentBuildingRepository.deleteAssignmentBuildingEntitiesByBuildings(buildingEntity);
-            buildingEntity.getAssignmentBuildingEntities().clear();
-            List<UserEntity> userEntities = userRepository.findAllById(staffIds);
-            for (UserEntity userEntity : userEntities) {
-                AssignmentBuildingEntity assignmentBuildingEntity = new    AssignmentBuildingEntity();
-                assignmentBuildingEntity.setBuildings(buildingEntity);
-                assignmentBuildingEntity.setStaffs(userEntity);
-                assignmentBuildingRepository.save(assignmentBuildingEntity);
+
+            // lay nhung thang quan li toa nha va xoa toa nha khoi nhung thang quan li nay
+            for (UserEntity userEntity : buildingEntity.getUsers()) {
+                userEntity.getBuildings().remove(buildingEntity);
             }
+
+            // xoa tat ca nhung thang quan li khoi toa nha
+            buildingEntity.getUsers().clear();
+
+            // lay nhung thang duoc giao quan li toa nha nay
+            List<UserEntity> userEntities = userRepository.findAllById(staffIds);
+
+            // gan tat ca nhung thang quan li nay vao toa nha
+            buildingEntity.setUsers(userEntities);
+
+            // gan toa nha nay cho nhung thang quan li
+            for (UserEntity userEntity : userEntities) {
+                userEntity.getBuildings().add(buildingEntity);
+            }
+
+            buildingRepository.save(buildingEntity);
+            userRepository.saveAll(userEntities);
         }
     }
 
@@ -90,6 +104,7 @@ public class BuildingServiceImpl implements BuildingService {
             }
         }
         buildingEntity = buildingConverter.convertToEntity(buildingDTO);
+        saveThumbnail(buildingDTO, buildingEntity);
         String[] rentArea = buildingDTO.getRentArea().split(",");
         for (int i = 0; i < rentArea.length; i++) {
             RentAreaEntity rentAreaEntity = new RentAreaEntity();
@@ -102,19 +117,55 @@ public class BuildingServiceImpl implements BuildingService {
     }
 
     @Override
+    public void saveThumbnail(BuildingDTO buildingDTO, BuildingEntity buildingEntity) {
+
+        String path = "/building/" + buildingDTO.getImageName();
+
+        if (buildingDTO.getImageBase64() != null) {
+            File oldFile = new File("C://home/office" + buildingEntity.getImage());
+            oldFile.delete();
+        }
+
+        String base64Data = buildingDTO.getImageBase64();
+        if (base64Data.contains(",")) {
+            base64Data = base64Data.split(",")[1];
+        }
+
+        byte[] bytes = Base64.decodeBase64(base64Data.getBytes(StandardCharsets.UTF_8));
+        uploadFileUtils.writeOrUpdate(path, bytes);
+        buildingEntity.setImage(path);
+    }
+
+    @Override
     @Transactional
     public void deleteBuildingById(Long id) {
         BuildingEntity buildingEntity = buildingRepository.findById(id).orElse(null);
         if (buildingEntity != null) {
 
-            // xoóa liên ket building trong userentity
-            assignmentBuildingRepository.deleteAssignmentBuildingEntitiesByBuildings(buildingEntity);
+            // lay nhung thang quan li toa nha va xoa toa nha khoi nhung thang quan li nay
+            for (UserEntity userEntity : buildingEntity.getUsers()) {
+                userEntity.getBuildings().remove(buildingEntity);
+                userRepository.save(userEntity);
+            }
 
-            // xoa lien ket building trong renareaentity
-            rentAreaRepository.deleteAllByBuilding(buildingEntity);
+            // xoa tat ca nhung thang quan li khoi toa nha
+            buildingEntity.getUsers().clear();
 
             buildingRepository.delete(buildingEntity);
 
         }
+    }
+
+    @Override
+    public int countTotalItems() {
+        return buildingRepository.countToTalImtes();
+    }
+
+
+    @Override
+    public BuildingDTO findById(Long id) {
+        BuildingEntity buildingEntity = buildingRepository.findById(id).orElse(null);
+        BuildingDTO buildingDTO = buildingConverter.convertToDTO(buildingEntity);
+        return buildingDTO;
     }
 }

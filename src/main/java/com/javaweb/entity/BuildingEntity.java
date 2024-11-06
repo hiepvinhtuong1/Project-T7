@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true)
-public class BuildingEntity {
+public class BuildingEntity extends BaseEntity  {
 
     @Id
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
@@ -102,12 +102,14 @@ public class BuildingEntity {
     @JoinColumn(name = "type")
     private String type;
 
-    @OneToMany(mappedBy = "building", fetch = FetchType.LAZY)
-    private List<RentAreaEntity> rentAreaEntities = new ArrayList<RentAreaEntity>();
+    @JoinColumn(name = "image")
+    private String image;
 
-//    @ManyToMany(mappedBy = "buildings", fetch = FetchType.LAZY)
-//    private List<UserEntity> users = new ArrayList<>();
+    @OneToMany(mappedBy = "building", fetch = FetchType.LAZY,
+               cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    private List<RentAreaEntity> rentAreaEntities = new ArrayList<>();
 
-    @OneToMany(mappedBy = "buildings", fetch = FetchType.LAZY)
-    private List<AssignmentBuildingEntity> assignmentBuildingEntities = new ArrayList<AssignmentBuildingEntity>();
+    @ManyToMany(mappedBy = "buildings", fetch = FetchType.LAZY)
+    private List<UserEntity> users = new ArrayList<>();
+
 }

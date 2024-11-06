@@ -177,6 +177,21 @@
                             <form:checkboxes items="${renttype}" path="typeCode"/>
                         </div>
                     </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 no-padding-right">Hình đại diện</label>
+                        <input class="col-sm-3 no-padding-right" type="file" id="uploadImage">
+                        <div class="col-sm-9">
+                            <c:if test="${not empty buildingEdit.image}">
+                                <c:set var="imagePath" value="/repository${buildingEdit.image}"/>
+                                <img src="${imagePath}" id="viewImage" width="300px" height="300px" style="">
+                            </c:if>
+                            <c:if test="${empty buildingEdit.image}">
+                                <img src="/admin/image/default.png" id="viewImage" width="300px" height="300px">
+                            </c:if>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label class="col-xs-3"></label>
                         <div class="col-xs-9">
@@ -190,13 +205,13 @@
                                 </button>
                             </c:if>
                             <c:if test="${ empty buildingEdit.id}">
-                                  <button
-                                            type="button"
-                                            class="btn btn-primary"
-                                            id="btnAddOrUpdateBuilding"
-                                    >
-                                        Thêm tòa nhà
-                                    </button>
+                                <button
+                                        type="button"
+                                        class="btn btn-primary"
+                                        id="btnAddOrUpdateBuilding"
+                                >
+                                    Thêm tòa nhà
+                                </button>
                             </c:if>
                             <a href="/admin/building-list">
                                 <button type="button" class="btn btn-warning">
@@ -267,35 +282,74 @@
 </div>
 
 <script>
+    var imageBase64 = '';
+    var imageName = '';
+
+
+    $('#uploadImage').change(function (event) {
+        var reader = new FileReader();
+        var file = $(this)[0].files[0];
+        reader.onload = function (e) {
+            imageBase64 = e.target.result;
+            imageName = file.name; // ten hinh khong dau, khoang cach. Dat theo format sau: a-b-c
+        };
+        reader.readAsDataURL(file);
+        openImage(this, "viewImage");
+    });
+
+
+    function openImage(input, imageView) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                $('#' + imageView).attr('src', reader.result);
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+
     $('#btnAddOrUpdateBuilding').click(function () {
 
         // đưa các field vào mảng
+        var data = {}; // 1 object
         var formData = $("#form-edit").serializeArray(); // mang cac object
-        var jSon = {}; // 1 object
+        $.each(formData, function (i, e) {
+            if ('' !== e.value && null != e.value) {
+                data['' + e.name + ''] = e.value;
+            }
+
+            if ('' !== imageBase64) {
+                data['imageBase64'] = imageBase64;
+                data['imageName'] = imageName;
+            }
+        });
         var typeCode = [];
         $.each(formData, function (i, v) {
             if (v.name == 'typeCode') {
                 typeCode.push(v.value);
-            } else jSon["" + v.name + ""] = v.value;
+            } else data["" + v.name + ""] = v.value;
         });
-        jSon['typeCode'] = typeCode;
+        data['typeCode'] = typeCode;
         if (typeCode.length == 0) {
             alert("Type code not empty!");
         } else {
-            btnAddOrUpdateBuilding(jSon);
+            $('#loading_image').show()
+            btnAddOrUpdateBuilding(data);
             location.replace("/admin/building-list");
         }
     });
 
-    function btnAddOrUpdateBuilding(jSon) {
+    function btnAddOrUpdateBuilding(data) {
         $.ajax({
             url: "/api/buildings",
             type: "POST",
-            data: JSON.stringify(jSon),
+            data: JSON.stringify(data),
             dataType: "json",
             contentType: "application/json",
             success: function (result) {
                 if (result.message === "Success") {
+                    $('#loading_image').hide();
                     alert("Building added/updated successfully!");
                 }
             },

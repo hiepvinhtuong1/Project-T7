@@ -105,12 +105,11 @@ public class BuildingEntity extends BaseEntity  {
     @JoinColumn(name = "image")
     private String image;
 
-    @OneToMany(mappedBy = "building", fetch = FetchType.LAZY)
-    private List<RentAreaEntity> rentAreaEntities = new ArrayList<RentAreaEntity>();
+    @OneToMany(mappedBy = "building", fetch = FetchType.LAZY,
+               cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    private List<RentAreaEntity> rentAreaEntities = new ArrayList<>();
 
-//    @ManyToMany(mappedBy = "buildings", fetch = FetchType.LAZY)
-//    private List<UserEntity> users = new ArrayList<>();
+    @ManyToMany(mappedBy = "buildings", fetch = FetchType.LAZY)
+    private List<UserEntity> users = new ArrayList<>();
 
-    @OneToMany(mappedBy = "buildings", fetch = FetchType.LAZY)
-    private List<AssignmentBuildingEntity> assignmentBuildingEntities = new ArrayList<AssignmentBuildingEntity>();
 }

@@ -16,14 +16,12 @@ import com.javaweb.service.BuildingService;
 import com.javaweb.utils.UploadFileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.data.domain.Pageable;
 import org.apache.tomcat.util.codec.binary.Base64;
 
 
 import javax.transaction.Transactional;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -42,8 +40,6 @@ public class BuildingServiceImpl implements BuildingService {
     @Autowired
     private BuildingConverter buildingConverter;
 
-    @Autowired
-    private AssignmentBuildingRepository assignmentBuildingRepository;
     @Autowired
     private UploadFileUtils uploadFileUtils;
 
@@ -72,15 +68,28 @@ public class BuildingServiceImpl implements BuildingService {
     public void updateAssignmentBuildingById(Long buildingId, List<Long> staffIds) {
         BuildingEntity buildingEntity = buildingRepository.findById(buildingId).orElse(null);
         if (buildingEntity != null) {
-            assignmentBuildingRepository.deleteAssignmentBuildingEntitiesByBuildings(buildingEntity);
-            buildingEntity.getAssignmentBuildingEntities().clear();
-            List<UserEntity> userEntities = userRepository.findAllById(staffIds);
-            for (UserEntity userEntity : userEntities) {
-                AssignmentBuildingEntity assignmentBuildingEntity = new AssignmentBuildingEntity();
-                assignmentBuildingEntity.setBuildings(buildingEntity);
-                assignmentBuildingEntity.setStaffs(userEntity);
-                assignmentBuildingRepository.save(assignmentBuildingEntity);
+
+            // lay nhung thang quan li toa nha va xoa toa nha khoi nhung thang quan li nay
+            for (UserEntity userEntity : buildingEntity.getUsers()) {
+                userEntity.getBuildings().remove(buildingEntity);
             }
+
+            // xoa tat ca nhung thang quan li khoi toa nha
+            buildingEntity.getUsers().clear();
+
+            // lay nhung thang duoc giao quan li toa nha nay
+            List<UserEntity> userEntities = userRepository.findAllById(staffIds);
+
+            // gan tat ca nhung thang quan li nay vao toa nha
+            buildingEntity.setUsers(userEntities);
+
+            // gan toa nha nay cho nhung thang quan li
+            for (UserEntity userEntity : userEntities) {
+                userEntity.getBuildings().add(buildingEntity);
+            }
+
+            buildingRepository.save(buildingEntity);
+            userRepository.saveAll(userEntities);
         }
     }
 
@@ -118,7 +127,7 @@ public class BuildingServiceImpl implements BuildingService {
         }
 
         String base64Data = buildingDTO.getImageBase64();
-        if (base64Data.contains(",")){
+        if (base64Data.contains(",")) {
             base64Data = base64Data.split(",")[1];
         }
 
@@ -133,11 +142,14 @@ public class BuildingServiceImpl implements BuildingService {
         BuildingEntity buildingEntity = buildingRepository.findById(id).orElse(null);
         if (buildingEntity != null) {
 
-            // xoóa liên ket building trong userentity
-            assignmentBuildingRepository.deleteAssignmentBuildingEntitiesByBuildings(buildingEntity);
+            // lay nhung thang quan li toa nha va xoa toa nha khoi nhung thang quan li nay
+            for (UserEntity userEntity : buildingEntity.getUsers()) {
+                userEntity.getBuildings().remove(buildingEntity);
+                userRepository.save(userEntity);
+            }
 
-            // xoa lien ket building trong renareaentity
-            rentAreaRepository.deleteAllByBuilding(buildingEntity);
+            // xoa tat ca nhung thang quan li khoi toa nha
+            buildingEntity.getUsers().clear();
 
             buildingRepository.delete(buildingEntity);
 

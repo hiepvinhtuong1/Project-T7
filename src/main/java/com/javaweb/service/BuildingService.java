@@ -17,10 +17,6 @@ public interface BuildingService {
 
     public void updateAssignmentBuildingById(Long buildingId, List<Long> staffIds);
 
-    //public void createBuilding(BuildingDTO buildingDTO);
-
-    //public void updateBuilding(BuildingDTO buildingDTO);
-
     public BuildingEntity createOrUpdateBuilding(BuildingDTO buildingDTO);
 
     public void deleteBuildingById(Long id);

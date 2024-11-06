@@ -12,8 +12,10 @@ import javax.persistence.Query;
 import javax.transaction.Transactional;
 import java.awt.print.Pageable;
 import java.lang.reflect.Field;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.awt.print.Pageable;
 
 @Repository
 public class BuildingRepositoryCustomImpl implements BuildingRepositoryCustom {
@@ -21,8 +23,9 @@ public class BuildingRepositoryCustomImpl implements BuildingRepositoryCustom {
     @PersistenceContext
     private EntityManager entityManager;
 
+
     @Override
-    public List<BuildingEntity> findAll(BuildingSearchRequest buildingSearchRequest, Pageable pageable) {
+    public List<BuildingEntity> findAll(BuildingSearchRequest buildingSearchRequest, org.springframework.data.domain.Pageable pageable) {
         StringBuilder sql = new StringBuilder("SELECT b.* FROM building b");
         StringBuilder join = new StringBuilder(" ");
         StringBuilder where = new StringBuilder(" WHERE 1 = 1 ");
@@ -31,10 +34,19 @@ public class BuildingRepositoryCustomImpl implements BuildingRepositoryCustom {
         handleNormalWhereClauses(buildingSearchRequest, where);
         handleSpeciallWhereClauses(buildingSearchRequest, where);
         sql.append(join).append(where);
-        sql.append(" GROUP BY b.id");
-        System.out.println(sql);
+        sql.append(" GROUP BY b.id").append(" LIMIT ").append(pageable.getPageSize()).append(" OFFSET ").append(pageable.getOffset());
+        System.out.println(sql.toString());
         Query query = entityManager.createNativeQuery(sql.toString(), BuildingEntity.class);
         return query.getResultList();
+    }
+
+    @Override
+    public int countToTalImtes() {
+        StringBuilder sql = new StringBuilder("SELECT b.* FROM building b");
+        StringBuilder where = new StringBuilder(" WHERE 1 = 1 ");
+        sql.append(where).append(" GROUP BY b.id");
+        Query query = entityManager.createNativeQuery(sql.toString());
+        return query.getResultList().size();
     }
 
     public void handleJoinClauses(BuildingSearchRequest buildingSearchBuilder, StringBuilder join) {
@@ -42,10 +54,6 @@ public class BuildingRepositoryCustomImpl implements BuildingRepositoryCustom {
         if (staffId != null) {
             join.append(" JOIN assignmentbuilding ab ON ab.buildingid = b.id");
         }
-//        List<String> typeCode = buildingSearchBuilder.getTypeCode();
-//        if (typeCode != null && typeCode.size() != 0) {
-//            join.append(" JOIN buildingrenttype brt ON brt.buildingid = b.id JOIN renttype rt ON brt.renttypeid = rt.id");
-//        }
         Long rentAreaFrom = buildingSearchBuilder.getAreaFrom();
         Long rentAreaTo = buildingSearchBuilder.getAreaTo();
         if ((rentAreaFrom != null) || (rentAreaTo != null)) {

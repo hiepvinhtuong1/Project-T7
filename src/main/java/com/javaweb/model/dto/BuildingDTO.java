@@ -72,10 +72,8 @@ public class BuildingDTO extends AbstractDTO {
     @Pattern(regexp = "(\\d{1,9})(,\\d{1,9})*", message = "floorArea phải có dạng từ 1 đến 9 chữ số, ngăn cách bởi dấu phẩy, ví dụ: 1,22,333")
     private String rentArea;
 
-    @NotBlank(message = "note can not be blank")
     private String managerName;
 
-    @NotBlank(message = "note can not be blank")
     private String managerPhone;
 
     @NotNull(message = "rentPrice can not be blank")

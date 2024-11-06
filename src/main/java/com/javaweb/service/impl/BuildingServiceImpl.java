@@ -13,16 +13,19 @@ import com.javaweb.repository.BuildingRepository;
 import com.javaweb.repository.RentAreaRepository;
 import com.javaweb.repository.UserRepository;
 import com.javaweb.service.BuildingService;
+import com.javaweb.utils.UploadFileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Pageable;
+import org.apache.tomcat.util.codec.binary.Base64;
 
 
 import javax.transaction.Transactional;
-import java.awt.print.Pageable;
+import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 @Service
 public class BuildingServiceImpl implements BuildingService {
@@ -41,10 +44,26 @@ public class BuildingServiceImpl implements BuildingService {
 
     @Autowired
     private AssignmentBuildingRepository assignmentBuildingRepository;
+    @Autowired
+    private UploadFileUtils uploadFileUtils;
 
     @Override
     public List<BuildingSearchResponse> findAll(BuildingSearchRequest buildingSearchRequest) {
         return null;
+    }
+
+    @Override
+    public List<BuildingSearchResponse> findAll(BuildingSearchRequest buildingSearchRequest, org.springframework.data.domain.Pageable pageable) {
+        List<BuildingEntity> buildingEntities = buildingRepository.findAll(buildingSearchRequest, pageable);
+
+        List<BuildingSearchResponse> buildingReponseDTOs = new ArrayList<>();
+
+        for (BuildingEntity it : buildingEntities) {
+            BuildingSearchResponse buildingSearchResponse = buildingConverter.convertToResponse(it);
+            buildingReponseDTOs.add(buildingSearchResponse);
+        }
+
+        return buildingReponseDTOs;
     }
 
 
@@ -76,6 +95,7 @@ public class BuildingServiceImpl implements BuildingService {
             }
         }
         buildingEntity = buildingConverter.convertToEntity(buildingDTO);
+        saveThumbnail(buildingDTO, buildingEntity);
         String[] rentArea = buildingDTO.getRentArea().split(",");
         for (int i = 0; i < rentArea.length; i++) {
             RentAreaEntity rentAreaEntity = new RentAreaEntity();
@@ -85,6 +105,26 @@ public class BuildingServiceImpl implements BuildingService {
             buildingEntity.getRentAreaEntities().add(rentAreaEntity);
         }
         return buildingRepository.save(buildingEntity);
+    }
+
+    @Override
+    public void saveThumbnail(BuildingDTO buildingDTO, BuildingEntity buildingEntity) {
+
+        String path = "/building/" + buildingDTO.getImageName();
+
+        if (buildingDTO.getImageBase64() != null) {
+            File oldFile = new File("C://home/office" + buildingEntity.getImage());
+            oldFile.delete();
+        }
+
+        String base64Data = buildingDTO.getImageBase64();
+        if (base64Data.contains(",")){
+            base64Data = base64Data.split(",")[1];
+        }
+
+        byte[] bytes = Base64.decodeBase64(base64Data.getBytes(StandardCharsets.UTF_8));
+        uploadFileUtils.writeOrUpdate(path, bytes);
+        buildingEntity.setImage(path);
     }
 
     @Override
@@ -106,27 +146,14 @@ public class BuildingServiceImpl implements BuildingService {
 
     @Override
     public int countTotalItems() {
-        return buildingRepository.countTotalItem();
+        return buildingRepository.countToTalImtes();
     }
+
 
     @Override
     public BuildingDTO findById(Long id) {
         BuildingEntity buildingEntity = buildingRepository.findById(id).orElse(null);
         BuildingDTO buildingDTO = buildingConverter.convertToDTO(buildingEntity);
         return buildingDTO;
-    }
-
-    @Override
-    public List<BuildingSearchResponse> findAll(BuildingSearchRequest buildingSearchRequest, Pageable pageable) {
-        List<BuildingEntity> buildingEntities = buildingRepository.findAll(buildingSearchRequest, pageable);
-
-        List<BuildingSearchResponse> buildingReponseDTOs = new ArrayList<>();
-
-        for (BuildingEntity it : buildingEntities) {
-            BuildingSearchResponse buildingSearchResponse = buildingConverter.convertToResponse(it);
-            buildingReponseDTOs.add(buildingSearchResponse);
-        }
-
-        return buildingReponseDTOs;
     }
 }

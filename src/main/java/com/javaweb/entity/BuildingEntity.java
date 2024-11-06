@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true)
-public class BuildingEntity {
+public class BuildingEntity extends BaseEntity  {
 
     @Id
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
@@ -101,6 +101,9 @@ public class BuildingEntity {
 
     @JoinColumn(name = "type")
     private String type;
+
+    @JoinColumn(name = "image")
+    private String image;
 
     @OneToMany(mappedBy = "building", fetch = FetchType.LAZY)
     private List<RentAreaEntity> rentAreaEntities = new ArrayList<RentAreaEntity>();

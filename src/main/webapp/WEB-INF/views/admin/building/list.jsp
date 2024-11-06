@@ -277,259 +277,61 @@
         <div class="hr hr-25 hr-double dotted"></div>
         <div class="row">
             <div class="col-xs-12">
-                <display:table name="model.listResult" cellspacing="0" cellpadding="0"
-                               requestURI="/admin/building-list" partialList="true" sort="external"
-                               id="buildingList" pagesize="${modelSearch.maxPageItems}"
-                               export="false"
-                               class="table table-fcv-ace table-striped table-bordered table-hover dataTable no-footer"
-                               style="margin: 3em 0 1.5em;">
+                <div class="table-responsive">
+                    <display:table name="model.listResult" cellspacing="0" cellpadding="0"
+                                   requestURI="/admin/building-list" partialList="true" sort="external"
+                                   size="${model.totalItems}" defaultorder="ascending"
+                                   id="tableList" pagesize="${modelSearch.maxPageItems}"
+                                   export="false"
+                                   class="table table-fcv-ace table-striped table-bordered table-hover dataTable no-footer"
+                                   style="margin: 3em 0 1.5em;">
 
-                    <display:column title="<fieldset class='form-group'>
+                        <display:column title="<fieldset class='form-group'>
 									<input type='checkbox' id='checkAll' class='check-box-element'>
 									</fieldset>" class="center select-cell"
-                                    headerClass="center select-cell">
-                        <fieldset>
-                            <input type="checkbox" name="checkList" value="${buildingList.id}"
-                                   id="checkbox_${buildingList.id}" class="check-box-element"/>
-                        </fieldset>
-                    </display:column>
-                    <display:column headerClass="text-left" property="name" title="Tên tòa nhà"/>
-                    <display:column headerClass="text-left" property="address" title="Địa chỉ"/>
-                    <display:column headerClass="text-left" property="numberOfBasement" title="Số tầng hầm"/>
-                    <display:column headerClass="text-left" property="managerName" title="Tên quản lý"/>
-                    <display:column headerClass="text-left" property="managerPhone" title="SĐT quản lý"/>
-                    <display:column headerClass="text-left" property="floorArea" title="D.T sàn"/>
-                    <display:column headerClass="text-left" property="emptyArea" title="D.T trống"/>
-                    <display:column headerClass="text-left" property="rentArea" title="D.T thuê"/>
-                    <display:column headerClass="text-left" property="rentPrice" title="Giá thuê"/>
-                    <display:column headerClass="text-left" property="serviceFee" title="Phí dịch vụ"/>
-                    <display:column headerClass="text-left" property="brokerageFee" title="Phí môi giới"/>
-                    <display:column headerClass="col-actions" title="Thao tác">
-                        <div class="hidden-sm hidden-xs btn-group">
-                            <button class="btn btn-xs btn-success" title="Giao tòa nhà"
-                                    onclick="assignmentBuilding(${item.id})">
-                                <i class="ace-icon fa fa-check bigger-120"></i>
-                            </button>
-                            <a href="/admin/building-edit-${item.id}">
-                                <button class="btn btn-xs btn-info" title="Sửa tòa nhà" type="button">
-                                    <i class="ace-icon fa fa-pencil bigger-120"></i>
+                                        headerClass="center select-cell">
+                            <fieldset>
+                                <input type="checkbox" name="checkList" value="${tableList.id}"
+                                       id="checkbox_${tableList.id}" class="check-box-element"/>
+                            </fieldset>
+                        </display:column>
+                        <display:column headerClass="text-left" property="name" title="Tên tòa nhà"/>
+                        <display:column headerClass="text-left" property="address" title="Địa chỉ"/>
+                        <display:column headerClass="text-left" property="numberOfBasement" title="Số tầng hầm"/>
+                        <display:column headerClass="text-left" property="managerName" title="Tên quản lý"/>
+                        <display:column headerClass="text-left" property="managerPhone" title="SĐT quản lý"/>
+                        <display:column headerClass="text-left" property="floorArea" title="D.T sàn"/>
+                        <display:column headerClass="text-left" property="emptyArea" title="D.T trống"/>
+                        <display:column headerClass="text-left" property="rentArea" title="D.T thuê"/>
+                        <display:column headerClass="text-left" property="rentPrice" title="Giá thuê"/>
+                        <display:column headerClass="text-left" property="serviceFee" title="Phí dịch vụ"/>
+                        <display:column headerClass="text-left" property="brokerageFee" title="Phí môi giới"/>
+                        <display:column headerClass="col-actions" title="Thao tác">
+                            <div class="hidden-sm hidden-xs btn-group">
+                                <button class="btn btn-xs btn-success" title="Giao tòa nhà"
+                                        onclick="assignmentBuilding(${tableList.id})">
+                                    <i class="ace-icon fa fa-check bigger-120"></i>
                                 </button>
-                            </a>
+                                <a href="/admin/building-edit-${tableList.id}">
+                                    <button class="btn btn-xs btn-info" title="Sửa tòa nhà" type="button">
+                                        <i class="ace-icon fa fa-pencil bigger-120"></i>
+                                    </button>
+                                </a>
 
-                            <a href="/admin/building-list">
-                                <button class="btn btn-xs btn-danger" title="Xóa tòa nhà" onclick="deleteBuilding(${item.id})">
-                                    <i class="ace-icon fa fa-trash-o bigger-120"></i>
+                                <a href="/admin/building-list">
+                                    <button class="btn btn-xs btn-danger" title="Xóa tòa nhà" onclick="deleteBuilding(${tableList.id})">
+                                        <i class="ace-icon fa fa-trash-o bigger-120"></i>
+                                    </button>
+                                </a>
+
+                                <button class="btn btn-xs btn-warning">
+                                    <i class="ace-icon fa fa-flag bigger-120"></i>
                                 </button>
-                            </a>
-
-                            <button class="btn btn-xs btn-warning">
-                                <i class="ace-icon fa fa-flag bigger-120"></i>
-                            </button>
-                        </div>
-
-                        <div class="hidden-md hidden-lg">
-                            <div class="inline pos-rel">
-                                <button
-                                        class="btn btn-minier btn-primary dropdown-toggle"
-                                        data-toggle="dropdown"
-                                        data-position="auto"
-                                >
-                                    <i
-                                            class="ace-icon fa fa-cog icon-only bigger-110"
-                                    ></i>
-                                </button>
-
-                                <ul
-                                        class="dropdown-menu dropdown-only-icon dropdown-yellow dropdown-menu-right dropdown-caret dropdown-close"
-                                >
-                                    <li>
-                                        <a
-                                                href="#"
-                                                class="tooltip-info"
-                                                data-rel="tooltip"
-                                                title=""
-                                                data-original-title="View"
-                                        >
-                                        <span class="blue">
-                                          <i
-                                                  class="ace-icon fa fa-search-plus bigger-120"
-                                          ></i>
-                                        </span>
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a
-                                                href="#"
-                                                class="tooltip-success"
-                                                data-rel="tooltip"
-                                                title=""
-                                                data-original-title="Edit"
-                                        >
-                                        <span class="green">
-                                          <i
-                                                  class="ace-icon fa fa-pencil-square-o bigger-120"
-                                          ></i>
-                                        </span>
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a
-                                                href="#"
-                                                class="tooltip-error"
-                                                data-rel="tooltip"
-                                                title=""
-                                                data-original-title="Delete"
-                                        >
-                                        <span class="red">
-                                          <i
-                                                  class="ace-icon fa fa-trash-o bigger-120"
-                                          ></i>
-                                        </span>
-                                        </a>
-                                    </li>
-                                </ul>
                             </div>
-                        </div>
-                    </display:column>
-                </display:table>
 
-<%--                <table--%>
-<%--                        id="buildingList"--%>
-<%--                        class="table table-striped table-bordered table-hover"--%>
-<%--                >--%>
-<%--                    <thead>--%>
-<%--                    <tr>--%>
-<%--                        <th class="center"></th>--%>
-<%--                        <th>Tên tòa nhà</th>--%>
-<%--                        <th>Địa chỉ</th>--%>
-<%--                        <th>Số tầng hầm</th>--%>
-<%--                        <th>Tên quản lí</th>--%>
-<%--                        <th>SĐT quản lí</th>--%>
-<%--                        <th>D.T sàn</th>--%>
-<%--                        <th>D.T trống</th>--%>
-<%--                        <th>D.T thuê</th>--%>
-<%--                        <th>Giá thuê</th>--%>
-<%--                        <th>Phí dịch vụ</th>--%>
-<%--                        <th>Phí môi giới</th>--%>
-<%--                        <th>Thao tác</th>--%>
-<%--                    </tr>--%>
-<%--                    </thead>--%>
-
-<%--                    <tbody>--%>
-<%--                    <c:forEach var="item" items="${listBuilding}">--%>
-<%--                        <tr>--%>
-<%--                            <td class="center">--%>
-<%--                                <label class="pos-rel">--%>
-<%--                                    <input type="checkbox" class="ace" value=${item.id}/>--%>
-<%--                                    <span class="lbl"></span>--%>
-<%--                                </label>--%>
-<%--                            </td>--%>
-<%--                            <td>${item.name}</td>--%>
-<%--                            <td>${item.address}</td>--%>
-<%--                            <td>${item.numberOfBasement}</td>--%>
-<%--                            <td>${item.managerName}</td>--%>
-<%--                            <td>${item.managerPhone}</td>--%>
-<%--                            <td>${item.floorArea}</td>--%>
-<%--                            <td>${item.emptyArea}</td>--%>
-<%--                            <td>${item.rentArea}</td>--%>
-<%--                            <td>${item.rentPrice}</td>--%>
-<%--                            <td>${item.serviceFee}</td>--%>
-<%--                            <td>${item.brokerageFee}</td>--%>
-<%--                            <td>--%>
-<%--                                <div class="hidden-sm hidden-xs btn-group">--%>
-<%--                                    <button class="btn btn-xs btn-success" title="Giao tòa nhà"--%>
-<%--                                            onclick="assignmentBuilding(${item.id})">--%>
-<%--                                        <i class="ace-icon fa fa-check bigger-120"></i>--%>
-<%--                                    </button>--%>
-<%--                                    <a href="/admin/building-edit-${item.id}">--%>
-<%--                                        <button class="btn btn-xs btn-info" title="Sửa tòa nhà" type="button">--%>
-<%--                                            <i class="ace-icon fa fa-pencil bigger-120"></i>--%>
-<%--                                        </button>--%>
-<%--                                    </a>--%>
-
-<%--                                    <a href="/admin/building-list">--%>
-<%--                                        <button class="btn btn-xs btn-danger" title="Xóa tòa nhà" onclick="deleteBuilding(${item.id})">--%>
-<%--                                            <i class="ace-icon fa fa-trash-o bigger-120"></i>--%>
-<%--                                        </button>--%>
-<%--                                    </a>--%>
-
-<%--                                    <button class="btn btn-xs btn-warning">--%>
-<%--                                        <i class="ace-icon fa fa-flag bigger-120"></i>--%>
-<%--                                    </button>--%>
-<%--                                </div>--%>
-
-<%--                                <div class="hidden-md hidden-lg">--%>
-<%--                                    <div class="inline pos-rel">--%>
-<%--                                        <button--%>
-<%--                                                class="btn btn-minier btn-primary dropdown-toggle"--%>
-<%--                                                data-toggle="dropdown"--%>
-<%--                                                data-position="auto"--%>
-<%--                                        >--%>
-<%--                                            <i--%>
-<%--                                                    class="ace-icon fa fa-cog icon-only bigger-110"--%>
-<%--                                            ></i>--%>
-<%--                                        </button>--%>
-
-<%--                                        <ul--%>
-<%--                                                class="dropdown-menu dropdown-only-icon dropdown-yellow dropdown-menu-right dropdown-caret dropdown-close"--%>
-<%--                                        >--%>
-<%--                                            <li>--%>
-<%--                                                <a--%>
-<%--                                                        href="#"--%>
-<%--                                                        class="tooltip-info"--%>
-<%--                                                        data-rel="tooltip"--%>
-<%--                                                        title=""--%>
-<%--                                                        data-original-title="View"--%>
-<%--                                                >--%>
-<%--                                        <span class="blue">--%>
-<%--                                          <i--%>
-<%--                                                  class="ace-icon fa fa-search-plus bigger-120"--%>
-<%--                                          ></i>--%>
-<%--                                        </span>--%>
-<%--                                                </a>--%>
-<%--                                            </li>--%>
-
-<%--                                            <li>--%>
-<%--                                                <a--%>
-<%--                                                        href="#"--%>
-<%--                                                        class="tooltip-success"--%>
-<%--                                                        data-rel="tooltip"--%>
-<%--                                                        title=""--%>
-<%--                                                        data-original-title="Edit"--%>
-<%--                                                >--%>
-<%--                                        <span class="green">--%>
-<%--                                          <i--%>
-<%--                                                  class="ace-icon fa fa-pencil-square-o bigger-120"--%>
-<%--                                          ></i>--%>
-<%--                                        </span>--%>
-<%--                                                </a>--%>
-<%--                                            </li>--%>
-
-<%--                                            <li>--%>
-<%--                                                <a--%>
-<%--                                                        href="#"--%>
-<%--                                                        class="tooltip-error"--%>
-<%--                                                        data-rel="tooltip"--%>
-<%--                                                        title=""--%>
-<%--                                                        data-original-title="Delete"--%>
-<%--                                                >--%>
-<%--                                        <span class="red">--%>
-<%--                                          <i--%>
-<%--                                                  class="ace-icon fa fa-trash-o bigger-120"--%>
-<%--                                          ></i>--%>
-<%--                                        </span>--%>
-<%--                                                </a>--%>
-<%--                                            </li>--%>
-<%--                                        </ul>--%>
-<%--                                    </div>--%>
-<%--                                </div>--%>
-<%--                            </td>--%>
-<%--                        </tr>--%>
-<%--                    </c:forEach>--%>
-<%--                    </tbody>--%>
-<%--                </table>--%>
+                        </display:column>
+                    </display:table>
+                </div>
             </div>
             <!-- /.span -->
         </div>

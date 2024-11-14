@@ -23,7 +23,7 @@ public class BuildingDTO extends AbstractDTO {
     @NotBlank(message = "District can not be blank")
     private String district;
 
-    @NotNull(message = "numberOfBasement can not be null")
+    @NotNull(message = "NumberOfBasement can not be null")
     @Digits(integer = 10, fraction = 0, message = "numberOfBasement phải là số nguyên và không vượt quá 10 chữ số")
     @Min(value = 1, message = "numberOfBasement phải lớn hơn hoặc bằng 1")
     private Long numberOfBasement;
@@ -40,31 +40,16 @@ public class BuildingDTO extends AbstractDTO {
 
     @NotNull(message = "TypeCode can not be null")
     private List<String> typeCode;
-
-
     private Long overtimeFee;
-
-
     private Long electricityFee;
-
-
     private Long deposit;
-
-
     private Long payment;
-
     private String rentTime;
-
     private String decorationTime;
-
     private String rentPriceDescription;
-
-
     private Long carFee;
-
     private String structure;
 
-    @NotBlank(message = "direction can not be blank")
     private String direction;
 
     private String note;
@@ -81,9 +66,7 @@ public class BuildingDTO extends AbstractDTO {
     @Min(value = 1, message = "rentPrice phải lớn hơn hoặc bằng 1")
     private Long rentPrice;
 
-
     private Long serviceFee;
-
 
     private Double brokerageFee;
 

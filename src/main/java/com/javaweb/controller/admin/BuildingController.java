@@ -35,13 +35,14 @@ public class BuildingController {
         modelAndView.addObject("district", DistrictCode.type());
         modelAndView.addObject("renttype", buildingRentType.type());
         modelAndView.addObject("staffs", userService.listStaff());
+
         // xuong db lay data
         BuildingSearchResponse model = new BuildingSearchResponse();
         DisplayTagUtils.of(request, model);
         List<BuildingSearchResponse> buildingSearchResponses = buildingService.findAll(params, PageRequest.of(model.getPage() - 1, model.getMaxPageItems()));
         // roi quang ra view
         model.setListResult(buildingSearchResponses);
-        model.setTotalItems(buildingService.countTotalItems());
+        model.setTotalItems(buildingService.countTotalItems(params));
         modelAndView.addObject("model", model);
         return modelAndView;
     }

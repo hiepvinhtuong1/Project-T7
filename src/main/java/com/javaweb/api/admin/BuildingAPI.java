@@ -47,8 +47,9 @@ public class BuildingAPI {
             buildingService.createOrUpdateBuilding(buildingDTO);
             ReponseDTO successDTO = new ReponseDTO();
             successDTO.setMessage("Success");
-            return ResponseEntity.ok(successDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(successDTO);
         }catch (Exception e){
+            System.out.println(e.getMessage());
             ReponseDTO errorDTO = new ReponseDTO();
             errorDTO.setMessage("Internal Server Error");
             errorDTO.setDetail(Collections.singletonList(e.getMessage()));
@@ -63,12 +64,25 @@ public class BuildingAPI {
     }
 
     @DeleteMapping("/{ids}")
-    private Object deleteBuilding(@PathVariable String[] ids){
-        for (String id : ids) {
-            System.out.println("id = " + id);
-            buildingService.deleteBuildingById(Long.parseLong(id));
+    private Object deleteBuilding(@PathVariable List<Long> ids){
+        ReponseDTO reponseDTO = new ReponseDTO();
+        try {
+
+            if (ids.size() == 0){
+                reponseDTO.setMessage("Fail");
+                reponseDTO.setDetail(Collections.singletonList("ids is empty"));
+                return ResponseEntity.badRequest().body(reponseDTO);
+            }
+
+            buildingService.deleteBuildingByIds(ids);
+
+            reponseDTO.setMessage("Success");
+            return ResponseEntity.ok().body(reponseDTO);
+        } catch (Exception e) {
+            reponseDTO.setMessage("Internal Server Error");
+            reponseDTO.setDetail(Collections.singletonList(e.getMessage()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(reponseDTO);
         }
-        return  new String("ok");
     }
 
     @PutMapping("/staffs")

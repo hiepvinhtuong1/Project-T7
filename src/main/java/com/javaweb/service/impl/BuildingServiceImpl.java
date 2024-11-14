@@ -43,10 +43,6 @@ public class BuildingServiceImpl implements BuildingService {
     @Autowired
     private UploadFileUtils uploadFileUtils;
 
-    @Override
-    public List<BuildingSearchResponse> findAll(BuildingSearchRequest buildingSearchRequest) {
-        return null;
-    }
 
     @Override
     public List<BuildingSearchResponse> findAll(BuildingSearchRequest buildingSearchRequest, org.springframework.data.domain.Pageable pageable) {
@@ -62,34 +58,19 @@ public class BuildingServiceImpl implements BuildingService {
         return buildingReponseDTOs;
     }
 
+    @Override
+    public int countTotalItems(BuildingSearchRequest buildingSearchRequest) {
+        return buildingRepository.countTotalItems(buildingSearchRequest);
+    }
 
     @Override
     @Transactional
     public void updateAssignmentBuildingById(Long buildingId, List<Long> staffIds) {
         BuildingEntity buildingEntity = buildingRepository.findById(buildingId).orElse(null);
         if (buildingEntity != null) {
-
-            // lay nhung thang quan li toa nha va xoa toa nha khoi nhung thang quan li nay
-            for (UserEntity userEntity : buildingEntity.getUsers()) {
-                userEntity.getBuildings().remove(buildingEntity);
-            }
-
-            // xoa tat ca nhung thang quan li khoi toa nha
-            buildingEntity.getUsers().clear();
-
-            // lay nhung thang duoc giao quan li toa nha nay
-            List<UserEntity> userEntities = userRepository.findAllById(staffIds);
-
-            // gan tat ca nhung thang quan li nay vao toa nha
+            List<UserEntity> userEntities = userRepository.findByIdIn(staffIds);
             buildingEntity.setUsers(userEntities);
-
-            // gan toa nha nay cho nhung thang quan li
-            for (UserEntity userEntity : userEntities) {
-                userEntity.getBuildings().add(buildingEntity);
-            }
-
             buildingRepository.save(buildingEntity);
-            userRepository.saveAll(userEntities);
         }
     }
 
@@ -98,74 +79,79 @@ public class BuildingServiceImpl implements BuildingService {
     public BuildingEntity createOrUpdateBuilding(BuildingDTO buildingDTO) {
         BuildingEntity buildingEntity = new BuildingEntity();
         if (buildingDTO.getId() != null) {
-            buildingEntity = buildingRepository.findById(buildingDTO.getId()).orElse(null);
-            if (buildingEntity != null) {
-                rentAreaRepository.deleteAllByBuilding(buildingEntity);
+            BuildingEntity buildingEntityOld = buildingRepository.findById(buildingDTO.getId()).orElse(null);
+
+            if (buildingEntityOld.getImage() != null && !buildingEntityOld.getImage().isEmpty()) {
+                buildingEntity.setImage(buildingEntityOld.getImage());
             }
         }
         buildingEntity = buildingConverter.convertToEntity(buildingDTO);
         saveThumbnail(buildingDTO, buildingEntity);
-        String[] rentArea = buildingDTO.getRentArea().split(",");
-        for (int i = 0; i < rentArea.length; i++) {
-            RentAreaEntity rentAreaEntity = new RentAreaEntity();
-            rentAreaEntity.setBuilding(buildingEntity);
-            rentAreaEntity.setValue(Long.parseLong(rentArea[i]));
-            rentAreaRepository.save(rentAreaEntity);
-            buildingEntity.getRentAreaEntities().add(rentAreaEntity);
-        }
+        rentAreaRepository.saveAll(buildingEntity.getRentAreaEntities());
         return buildingRepository.save(buildingEntity);
     }
 
     @Override
     public void saveThumbnail(BuildingDTO buildingDTO, BuildingEntity buildingEntity) {
-
         String path = "/building/" + buildingDTO.getImageName();
-
-        if (buildingDTO.getImageBase64() != null) {
-            File oldFile = new File("C://home/office" + buildingEntity.getImage());
-            oldFile.delete();
-        }
-
-        String base64Data = buildingDTO.getImageBase64();
-        if (base64Data.contains(",")) {
-            base64Data = base64Data.split(",")[1];
-        }
-
-        byte[] bytes = Base64.decodeBase64(base64Data.getBytes(StandardCharsets.UTF_8));
-        uploadFileUtils.writeOrUpdate(path, bytes);
-        buildingEntity.setImage(path);
-    }
-
-    @Override
-    @Transactional
-    public void deleteBuildingById(Long id) {
-        BuildingEntity buildingEntity = buildingRepository.findById(id).orElse(null);
-        if (buildingEntity != null) {
-
-            // lay nhung thang quan li toa nha va xoa toa nha khoi nhung thang quan li nay
-            for (UserEntity userEntity : buildingEntity.getUsers()) {
-                userEntity.getBuildings().remove(buildingEntity);
-                userRepository.save(userEntity);
+        if (null != buildingDTO.getImageBase64()) {
+            if (null != buildingEntity.getImage()) {
+                if (!path.equals(buildingEntity.getImage())) {
+                    File file = new File("C://home/office" + buildingEntity.getImage());
+                    file.delete();
+                }
             }
-
-            // xoa tat ca nhung thang quan li khoi toa nha
-            buildingEntity.getUsers().clear();
-
-            buildingRepository.delete(buildingEntity);
-
+            byte[] bytes = Base64.decodeBase64(buildingDTO.getImageBase64().getBytes());
+            uploadFileUtils.writeOrUpdate(path, bytes);
+            buildingEntity.setImage(path);
         }
     }
 
-    @Override
-    public int countTotalItems() {
-        return buildingRepository.countToTalImtes();
-    }
-
 
     @Override
-    public BuildingDTO findById(Long id) {
-        BuildingEntity buildingEntity = buildingRepository.findById(id).orElse(null);
-        BuildingDTO buildingDTO = buildingConverter.convertToDTO(buildingEntity);
-        return buildingDTO;
+        @Transactional
+        public void deleteBuildingById (Long id){
+            BuildingEntity buildingEntity = buildingRepository.findById(id).orElse(null);
+            if (buildingEntity != null) {
+
+                // lay nhung thang quan li toa nha va xoa toa nha khoi nhung thang quan li nay
+                for (UserEntity userEntity : buildingEntity.getUsers()) {
+                    userEntity.getBuildings().remove(buildingEntity);
+                    userRepository.save(userEntity);
+                }
+
+                // xoa tat ca nhung thang quan li khoi toa nha
+                buildingEntity.getUsers().clear();
+
+                buildingRepository.delete(buildingEntity);
+
+            }
+        }
+
+        @Override
+        @Transactional
+        public void deleteBuildingByIds (List < Long > ids) {
+            List<BuildingEntity> buildingEntities = buildingRepository.findAllById(ids);
+            if (!buildingEntities.isEmpty()) {
+                for (BuildingEntity buildingEntity : buildingEntities) {
+                    // lay nhung thang quan li toa nha va xoa toa nha khoi nhung thang quan li nay
+                    for (UserEntity userEntity : buildingEntity.getUsers()) {
+                        userEntity.getBuildings().remove(buildingEntity);
+                        userRepository.save(userEntity);
+                    }
+
+                    // xoa tat ca nhung thang quan li khoi toa nha
+                    buildingEntity.getUsers().clear();
+                }
+            }
+            buildingRepository.deleteByIdIn(ids);
+        }
+
+
+        @Override
+        public BuildingDTO findById (Long id){
+            BuildingEntity buildingEntity = buildingRepository.findById(id).orElse(null);
+            BuildingDTO buildingDTO = buildingConverter.convertToDTO(buildingEntity);
+            return buildingDTO;
+        }
     }
-}

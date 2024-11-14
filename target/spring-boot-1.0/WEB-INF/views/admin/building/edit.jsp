@@ -336,7 +336,7 @@
         } else {
             $('#loading_image').show()
             btnAddOrUpdateBuilding(data);
-            location.replace("/admin/building-list");
+
         }
     });
 
@@ -351,6 +351,7 @@
                 if (result.message === "Success") {
                     $('#loading_image').hide();
                     alert("Building added/updated successfully!");
+                    location.replace("/admin/building-list");
                 }
             },
             error: function (result) {

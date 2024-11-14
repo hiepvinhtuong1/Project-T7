@@ -44,9 +44,20 @@ public class BuildingConverter {
 
     public BuildingEntity   convertToEntity(BuildingDTO dto) {
         BuildingEntity buildingEntity = modelMapper.map(dto, BuildingEntity.class);
+
+        // convert type
         List<String> typeCode = dto.getTypeCode();
         String types = typeCode.stream().collect(Collectors.joining(","));
         buildingEntity.setType(types);
+
+        // convert rentArea
+        String[] rentArea = dto.getRentArea().split(",");
+        for (int i = 0; i < rentArea.length; i++) {
+            RentAreaEntity rentAreaEntity = new RentAreaEntity();
+            rentAreaEntity.setBuilding(buildingEntity);
+            rentAreaEntity.setValue(Long.parseLong(rentArea[i]));
+            buildingEntity.getRentAreaEntities().add(rentAreaEntity);
+        }
         return buildingEntity;
     }
 }

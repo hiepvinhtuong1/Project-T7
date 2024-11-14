@@ -41,10 +41,17 @@ public class BuildingRepositoryCustomImpl implements BuildingRepositoryCustom {
     }
 
     @Override
-    public int countToTalImtes() {
+    public int countTotalItems(BuildingSearchRequest buildingSearchRequest) {
         StringBuilder sql = new StringBuilder("SELECT b.* FROM building b");
+        StringBuilder join = new StringBuilder(" ");
         StringBuilder where = new StringBuilder(" WHERE 1 = 1 ");
-        sql.append(where).append(" GROUP BY b.id");
+
+        handleJoinClauses(buildingSearchRequest, join);
+        handleNormalWhereClauses(buildingSearchRequest, where);
+        handleSpeciallWhereClauses(buildingSearchRequest, where);
+        sql.append(join).append(where);
+        sql.append(" GROUP BY b.id");
+        System.out.println(sql.toString());
         Query query = entityManager.createNativeQuery(sql.toString());
         return query.getResultList().size();
     }

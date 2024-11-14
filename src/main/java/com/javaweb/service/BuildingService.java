@@ -9,7 +9,6 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface BuildingService {
-    List<BuildingSearchResponse> findAll(BuildingSearchRequest buildingSearchRequest);
 
     List<BuildingSearchResponse> findAll(BuildingSearchRequest buildingSearchRequest, Pageable pageable);
 
@@ -21,7 +20,9 @@ public interface BuildingService {
 
     public void deleteBuildingById(Long id);
 
-    int countTotalItems();
+    public void deleteBuildingByIds(List<Long> ids);
+
+    int countTotalItems(BuildingSearchRequest buildingSearchRequest);
 
     public void saveThumbnail(BuildingDTO buildingDTO, BuildingEntity buildingEntity);
 }

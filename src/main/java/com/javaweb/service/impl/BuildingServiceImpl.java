@@ -107,6 +107,15 @@ public class BuildingServiceImpl implements BuildingService {
         }
     }
 
+    @Override
+    public boolean checkUserOfBuilding(Long userId, Long buildingId) {
+        BuildingEntity buildingEntity = buildingRepository.findById(buildingId).orElse(null);
+        UserEntity userEntity = userRepository.findById(userId).orElse(null);
+        if (buildingEntity.getUsers().contains(userEntity)) {
+            return true;
+        }
+        return false;
+    }
 
     @Override
         @Transactional

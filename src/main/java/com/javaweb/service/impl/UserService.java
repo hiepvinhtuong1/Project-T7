@@ -15,6 +15,7 @@ import com.javaweb.repository.UserRepository;
 import com.javaweb.service.IUserService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -40,8 +41,6 @@ public class UserService implements IUserService {
     @Autowired
     private UserConverter userConverter;
 
-
-
     @Override
     public UserDTO findOneByUserNameAndStatus(String name, int status) {
         return userConverter.convertToDto(userRepository.findOneByUserNameAndStatus(name, status));
@@ -66,7 +65,6 @@ public class UserService implements IUserService {
     }
 
 
-
     @Override
     public List<UserDTO> getAllUsers(Pageable pageable) {
         List<UserEntity> userEntities = userRepository.getAllUsers(pageable);
@@ -86,30 +84,33 @@ public class UserService implements IUserService {
 
     @Override
     public Map<Long, String> listStaff() {
-        List<UserEntity> userEntities = userRepository.findByStatusAndRoles_Code(1,"STAFF");
+        List<UserEntity> userEntities = userRepository.findByStatusAndRoles_Code(1, "STAFF");
         Map<Long, String> staff = new HashMap<>();
         for (UserEntity userEntity : userEntities) {
-            staff.put(userEntity.getId(), userEntity.getUserName());
+            staff.put(userEntity.getId(), userEntity.getUsername());
         }
         return staff;
     }
 
     @Override
-    public ReponseDTO loadStaff(Long id) {
-        List<UserEntity> userEntities = userRepository.findByStatusAndRoles_Code(1,"STAFF");
-
-        List<UserEntity> assignmentStaffs = userRepository.findByRoles_CodeAndBuildings_Id("STAFF", id);
+    public ReponseDTO loadStaff(Long id, Long option) {
+        List<UserEntity> userEntities = userRepository.findByStatusAndRoles_Code(1, "STAFF");
+        List<UserEntity> assignmentStaffs = new ArrayList<>();
+        if (option == 1) {
+            assignmentStaffs = userRepository.findByRoles_CodeAndBuildings_Id("STAFF", id);
+        } else {
+            assignmentStaffs = userRepository.findByRoles_CodeAndCustomers_Id("STAFF", id);
+        }
 
         List<StaffResponseDTO> staffResponseDTOS = new ArrayList<>();
 
-        for(UserEntity userEntity : userEntities) {
+        for (UserEntity userEntity : userEntities) {
             StaffResponseDTO staffResponseDTO = new StaffResponseDTO();
             staffResponseDTO.setStaffId(userEntity.getId());
-            staffResponseDTO.setUserName(userEntity.getUserName());
+            staffResponseDTO.setUserName(userEntity.getUsername());
             if (assignmentStaffs.contains(userEntity)) {
                 staffResponseDTO.setChecked("checked");
-            }
-            else {
+            } else {
                 staffResponseDTO.setChecked("");
             }
 
@@ -170,7 +171,7 @@ public class UserService implements IUserService {
         RoleEntity role = roleRepository.findOneByCode(updateUser.getRoleCode());
         UserEntity oldUser = userRepository.findById(id).get();
         UserEntity userEntity = userConverter.convertToEntity(updateUser);
-        userEntity.setUserName(oldUser.getUserName());
+        userEntity.setUserName(oldUser.getUsername());
         userEntity.setStatus(oldUser.getStatus());
         userEntity.setRoles(Stream.of(role).collect(Collectors.toList()));
         userEntity.setPassword(oldUser.getPassword());

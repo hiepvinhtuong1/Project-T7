@@ -25,4 +25,6 @@ public interface BuildingService {
     int countTotalItems(BuildingSearchRequest buildingSearchRequest);
 
     public void saveThumbnail(BuildingDTO buildingDTO, BuildingEntity buildingEntity);
+
+    boolean checkUserOfBuilding(Long userId, Long buildingId);
 }

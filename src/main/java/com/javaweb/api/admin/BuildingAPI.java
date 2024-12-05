@@ -8,6 +8,7 @@ import com.javaweb.model.dto.UserDTO;
 import com.javaweb.model.response.ReponseDTO;
 import com.javaweb.model.response.StaffResponseDTO;
 import com.javaweb.service.BuildingService;
+import com.javaweb.service.IUserService;
 import com.javaweb.service.impl.UserService;
 import com.javaweb.utils.UploadFileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
 public class BuildingAPI {
 
     @Autowired
-    UserService userService;
+    IUserService userService;
 
     @Autowired
     BuildingService buildingService;
@@ -59,7 +60,7 @@ public class BuildingAPI {
 
     @GetMapping("/{id}")
     private Object loadStaffs(@PathVariable Long id){
-        ReponseDTO reponseDTO =  userService.loadStaff(id);
+        ReponseDTO reponseDTO =  userService.loadStaff(id, Long.parseLong("1"));
         return reponseDTO;
     }
 

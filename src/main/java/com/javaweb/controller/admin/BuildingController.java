@@ -1,11 +1,14 @@
 package com.javaweb.controller.admin;
 
 
+import com.javaweb.entity.BuildingEntity;
+import com.javaweb.entity.UserEntity;
 import com.javaweb.enums.buildingRentType;
 import com.javaweb.enums.DistrictCode;
 import com.javaweb.model.dto.BuildingDTO;
 import com.javaweb.model.request.BuildingSearchRequest;
 import com.javaweb.model.response.BuildingSearchResponse;
+import com.javaweb.security.utils.SecurityUtils;
 import com.javaweb.service.BuildingService;
 import com.javaweb.service.IUserService;
 import com.javaweb.utils.DisplayTagUtils;
@@ -36,6 +39,10 @@ public class BuildingController {
         modelAndView.addObject("renttype", buildingRentType.type());
         modelAndView.addObject("staffs", userService.listStaff());
 
+        //Neu tai khoan la user thi phai xet them staff id
+        if (SecurityUtils.getAuthorities().contains("ROLE_STAFF")) {
+            params.setStaffId(SecurityUtils.getPrincipal().getId());
+        }
         // xuong db lay data
         BuildingSearchResponse model = new BuildingSearchResponse();
         DisplayTagUtils.of(request, model);
@@ -58,11 +65,16 @@ public class BuildingController {
     @GetMapping("/admin/building-edit-{id}")
     private ModelAndView buildingEdit(@PathVariable Long id) {
         ModelAndView modelAndView = new ModelAndView("admin/building/edit");
-        BuildingDTO buildingDTO = buildingService.findById(id);
-        modelAndView.addObject("district", DistrictCode.type());
-        modelAndView.addObject("renttype", buildingRentType.type());
-        //xuong Db dung ham findById de lay data toa nha hien tai => BuildingENtity convert BuildingDTO
-        modelAndView.addObject("buildingEdit", buildingDTO);
-        return modelAndView;
+        if (buildingService.checkUserOfBuilding(SecurityUtils.getPrincipal().getId(), id)
+                || SecurityUtils.getAuthorities().contains("ROLE_MANAGER")) {
+            BuildingDTO buildingDTO = buildingService.findById(id);
+            modelAndView.addObject("district", DistrictCode.type());
+            modelAndView.addObject("renttype", buildingRentType.type());
+            //xuong Db dung ham findById de lay data toa nha hien tai => BuildingENtity convert BuildingDTO
+            modelAndView.addObject("buildingEdit", buildingDTO);
+            return modelAndView;
+        } else {
+            return new ModelAndView("redirect:/login?accessDenied");
+        }
     }
 }

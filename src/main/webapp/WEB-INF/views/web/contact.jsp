@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8"%>
 <%@include file="/common/taglib.jsp"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -116,18 +116,18 @@
                 </div>
                 <div class="col-12 col-md-6">
                     <h2 class="title-lienhe"><strong>Liên hệ với chúng tôi</strong></h2>
-                    <form>
+                    <form id="form-contact">
                         <div class="row">
                             <div class="col">
-                                <input type="text" class="form-control" placeholder="Họ và tên">
+                                <input type="text" class="form-control" name="fullName" placeholder="Họ và tên">
                             </div>
                             <div class="col">
-                                <input type="text" class="form-control" placeholder="Email">
+                                <input type="text" class="form-control" name="email" placeholder="Email">
                             </div>
                         </div>
-                        <input type="text" class="form-control mt-3" placeholder="Số điện thoại">
-                        <input type="text" class="form-control mt-3" placeholder="Nội dung">
-                        <button class="btn btn-primary px-4 mt-3">
+                        <input type="text" class="form-control mt-3" name="phone" placeholder="Số điện thoại">
+                        <input type="text" class="form-control mt-3" name="demand" placeholder="Nội dung">
+                        <button type="button" id="btnAddOrUpdateCustomer" class="btn btn-primary px-4 mt-3" onclick="myFunction()">
                             Gửi liên hệ
                         </button>
                     </form>
@@ -158,7 +158,7 @@
                             </div>
                             <div class="col-12 col-md-4 text-center">
                                 <div class="icon-footer">
-                                    <img src="https://bizweb.dktcdn.net/100/328/362/themes/894751/assets/place_phone.png?1676257083798 alt="">
+                                    <img src="https://bizweb.dktcdn.net/100/328/362/themes/894751/assets/place_phone.png?1676257083798" alt="">
                                 </div>
                                 <div class="content-center-footer">
                                     <p class="mb-1 mt-3">Hotline</p>
@@ -235,5 +235,79 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+
+<script>
+
+    function myFunction(){
+
+        // Lấy giá trị từ các field trong form
+        var customerName = $("input[name='fullName']").val();
+        var phoneNumber = $("input[name='phone']").val();
+
+        // Kiểm tra tên khách hàng và số điện thoại không được để trống
+        if (customerName === "" || phoneNumber === "") {
+            alert("Tên khách hàng và Số điện thoại không được để trống!");
+            return; // Dừng việc gửi form
+        }
+
+        // Kiểm tra số điện thoại phải có 10 chữ số
+        var phoneRegex = /^[0-9]{10}$/;
+        if (!phoneRegex.test(phoneNumber)) {
+            alert("Số điện thoại phải có 10 chữ số!");
+            return; // Dừng việc gửi form
+        }
+
+        // Kiểm tra tình trạng đã được chọn chưa
+        var status = $("select[name='status']").val();
+        if (status == undefined || status == null || status.trim() == '') {
+            status = 'Chưa xử lý';
+        }
+
+        // đưa các field vào mảng
+        var data = {}; // 1 object
+        var formData = $("#form-contact").serializeArray(); // mang cac object
+        formData.push({ name: 'status', value: 'Chưa xử lý' }); // Thêm thuộc tính mới vào mảng
+        $.each(formData, function (i, e) {
+                if ('' !== e.value && null != e.value) {
+                data['' + e.name + ''] = e.value;
+            }
+        });
+        btnAddOrUpdateCustomer(data);
+    };
+
+    function btnAddOrUpdateCustomer(data) {
+        $.ajax({
+            url: "/api/customers",
+            type: "POST",
+            data: JSON.stringify(data),
+            dataType: "json",
+            contentType: "application/json",
+            success: function (result) {
+                if (result.message === "Success") {
+                    alert("Customer added/updated successfully!");
+                    location.reload();
+                }
+            },
+            error: function (result) {
+                if (result.responseJSON) {
+                    const response = result.responseJSON;
+
+                    if (response.message === "Field error") {
+                        const errorDetails = response.detail ? response.detail.join("\n") : "Unknown error";
+                        alert("Errors:\n" + errorDetails);  // Hiển thị thông tin lỗi chi tiết từ backend
+                    } else {
+                        alert("An error occurred: " + response.message);
+                    }
+                } else {
+                    const errorMessage = result.responseText || `Status code: ${result.status}`;
+                    alert("An unexpected error occurred:\n" + errorMessage);
+                }
+            }
+        });
+    }
+
+</script>
+
 </body>
 </html>
+
